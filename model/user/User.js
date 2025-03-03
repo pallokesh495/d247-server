@@ -1,8 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/db.js';
 import bcrypt from 'bcryptjs';
-import Wallet from './Wallet.js'; // Import Wallet model
-import Affiliate from './Affiliate.js'; // Import Affiliate model
+import Wallet from '../admin/Wallet.js'; // Import Wallet model
+import Affiliate from '../admin/Affiliate.js'; // Import Affiliate model
 
 const User = sequelize.define('User', {
     user_id: {
@@ -38,7 +38,7 @@ const User = sequelize.define('User', {
         allowNull: false,
     },
     role: {
-        type: DataTypes.ENUM('Owner', 'User', 'Agent'),
+        type: DataTypes.ENUM('User'),
         allowNull: false,
     },
     status: {

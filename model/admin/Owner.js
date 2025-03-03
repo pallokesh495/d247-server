@@ -1,6 +1,6 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/db.js';
-import Wallet from './Wallet.js'; // Import Wallet model
+import bcrypt from 'bcryptjs'; // For password hashing
 
 const Owner = sequelize.define('Owner', {
     owner_id: {
@@ -56,6 +56,15 @@ const Owner = sequelize.define('Owner', {
     site_email_address: {
         type: DataTypes.STRING,
         allowNull: false,
+        unique: true, // Ensure email is unique
+    },
+    password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+    },
+    role: {
+        type: DataTypes.ENUM('Owner'),
+        allowNull: false,
     },
     account_status: {
         type: DataTypes.BOOLEAN,
@@ -63,14 +72,17 @@ const Owner = sequelize.define('Owner', {
     },
 }, {
     hooks: {
-        afterCreate: async (owner) => {
-            // Automatically create a wallet for the owner
-            await Wallet.create({
-                user_id: owner.owner_id, // Use owner.owner_id
-                user_type: 'Owner', // Add user_type
-                balance: 0.0, // Initialize balance to 0
-                coin_type: 'USD', // Default coin type
-            });
+        beforeCreate: async (owner) => {
+            if (owner.password) {
+                const salt = await bcrypt.genSalt(10);
+                owner.password = await bcrypt.hash(owner.password, salt);
+            }
+        },
+        beforeUpdate: async (owner) => {
+            if (owner.changed('password')) {
+                const salt = await bcrypt.genSalt(10);
+                owner.password = await bcrypt.hash(owner.password, salt);
+            }
         },
     },
 });

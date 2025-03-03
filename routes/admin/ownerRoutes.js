@@ -1,11 +1,15 @@
 import express from 'express';
 import OwnerController from '../../controller/admin/OwnerController.js';
-import authMiddleware from '../../middleware/authMiddleware.js';
+import authMiddleware from '../../middleware/admin/authMiddleware.js';
+import AuthController from '../../controller/admin/ownerAuthController.js';
 
 const router = express.Router();
 
 // Create a new client/website
 router.post('/clients', OwnerController.createClient);
+
+// login client/website
+router.post('/login-owner', AuthController.login);
 
 // Update a client/website
 router.put('/clients/:ownerId', authMiddleware, OwnerController.updateClient);

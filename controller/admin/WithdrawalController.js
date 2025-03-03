@@ -1,5 +1,5 @@
 import Withdrawal from '../../model/admin/Withdrawal.js'
-import User from '../../model/admin/User.js';
+import User from '../../model/user/User.js';
 
 const WithdrawalController = {
     // User creates a withdrawal request

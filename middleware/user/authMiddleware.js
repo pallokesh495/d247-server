@@ -1,7 +1,8 @@
 import jwt from 'jsonwebtoken';
-import TokenBlacklist from '../model/admin/TokenBlacklist.js';
+import TokenBlacklist from '../../model/admin/TokenBlacklist.js';
 
 const authMiddleware = async (req, res, next) => {
+    console.log("hello from user auth middleware")
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {

@@ -1,4 +1,4 @@
-import WalletService from '../../services/admin/WalletService.js';
+import WalletService from '../services/walletService.js';
 
 const WalletController = {
     creditBalance: async (req, res) => {
@@ -8,13 +8,14 @@ const WalletController = {
 
             // Use the provided userId or fallback to the admin's userId
             const targetUserId = userId || adminUserId;
+            const role = req.user.role;
 
             // Input validation
             if (!amount) {
                 return res.status(400).json({ error: 'Missing required field: amount' });
             }
 
-            const wallet = await WalletService.creditBalance(targetUserId, amount, coinType);
+            const wallet = await WalletService.creditBalance(targetUserId, amount, coinType,role);
             res.status(200).json({ success: true, data: wallet });
         } catch (error) {
             console.error('Error in creditBalance:', error);
@@ -30,12 +31,14 @@ const WalletController = {
             // Use the provided userId or fallback to the admin's userId
             const targetUserId = userId || adminUserId;
 
+            const role = req.user.role;
+
             // Input validation
             if (!amount) {
                 return res.status(400).json({ error: 'Missing required field: amount' });
             }
 
-            const wallet = await WalletService.debitBalance(targetUserId, amount, coinType);
+            const wallet = await WalletService.debitBalance(targetUserId, amount, coinType,role);
             res.status(200).json({ success: true, data: wallet });
         } catch (error) {
             console.error('Error in debitBalance:', error);
@@ -54,7 +57,9 @@ const WalletController = {
             // Use the provided userId or fallback to the admin's userId
             const targetUserId = userId || adminUserId;
 
-            const balance = await WalletService.getBalance(targetUserId);
+            const role = req.user.role;
+
+            const balance = await WalletService.getBalance(targetUserId,role);
             res.status(200).json({ success: true, data: balance });
         } catch (error) {
             console.error('Error in getBalance:', error);

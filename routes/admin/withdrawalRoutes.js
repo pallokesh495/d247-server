@@ -1,6 +1,6 @@
 import express from 'express';
 import WithdrawalController from '../../controller/admin/WithdrawalController.js';
-import authMiddleware from '../../middleware/authMiddleware.js';
+import authMiddleware from '../../middleware/admin/authMiddleware.js';
 
 const router = express.Router();
 

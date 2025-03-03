@@ -1,7 +1,7 @@
-import Wallet from '../../model/admin/Wallet.js';
+import Wallet from '../model/admin/Wallet.js';
 
 const WalletService = {
-    creditBalance: async (userId, amount, coinType = 'USD') => {
+    creditBalance: async (userId, amount, coinType = 'USD',role) => {
         try {
             console.log('Service - creditBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -12,7 +12,7 @@ const WalletService = {
             }
 
             const wallet = await Wallet.findOne({ 
-                where: { user_id: userId, user_type: 'Owner' }, // Add user_type
+                where: { user_id: userId, user_type: role }, 
             });
 
             // If wallet doesn't exist, create one
@@ -30,7 +30,7 @@ const WalletService = {
         }
     },
 
-    debitBalance: async (userId, amount, coinType = 'USD') => {
+    debitBalance: async (userId, amount, coinType = 'USD',role) => {
         try {
             console.log('Service - debitBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -41,7 +41,7 @@ const WalletService = {
             }
 
             const wallet = await Wallet.findOne({ 
-                where: { user_id: userId, user_type: 'Owner' }, // Add user_type
+                where: { user_id: userId, user_type: role }, 
             });
 
             // If wallet doesn't exist, create one
@@ -64,13 +64,15 @@ const WalletService = {
         }
     },
 
-    getBalance: async (userId) => {
+    getBalance: async (userId, role) => {
         try {
             console.log('Service - getBalance:', { userId }); // Debugging log
+            
             const wallet = await Wallet.findOne({ 
-                where: { user_id: userId, user_type: 'Owner' }, // Add user_type
+                where: { user_id: userId, user_type: role },
             });
-            return wallet ? parseFloat(wallet.balance) : 0;
+            if(wallet) return parseFloat(wallet.balance) ;
+            else throw error("wallet not found")
         } catch (error) {
             console.error('Error in getBalance service:', error);
             throw error;

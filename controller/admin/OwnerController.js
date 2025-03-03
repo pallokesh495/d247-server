@@ -1,9 +1,13 @@
 import Owner from '../../model/admin/Owner.js';
 import Wallet from '../../model/admin/Wallet.js';
+import sequelize from '../../config/db.js';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 
 const OwnerController = {
     // Create a new client/website
-    createClient: async (req, res) => {
+    createClient:  async (req, res) => {
+        const transaction = await sequelize.transaction(); // Start a transaction
         try {
             const {
                 client_name,
@@ -19,10 +23,13 @@ const OwnerController = {
                 platform_configurations,
                 payment_methods,
                 site_email_address,
+                password,
+                role,
                 account_status,
             } = req.body;
-            // Create a new client/website
-            const client = await Owner.create({
+
+            // Create a new owner
+            const owner = await Owner.create({
                 client_name,
                 website_name,
                 domain_name,
@@ -35,24 +42,28 @@ const OwnerController = {
                 platform_configurations,
                 payment_methods,
                 site_email_address,
+                password,
+                role,
                 account_status,
-            });
+            }, { transaction });
 
-            // Credit the initial balance to the owner's wallet
-            const wallet = await Wallet.findOne({ 
-                where: { user_id: client.owner_id, user_type: 'Owner' }, // Add user_type
-            });
-            if (wallet) {
-                wallet.balance += parseFloat(initial_balance);
-                await wallet.save();
-            }
+            // Create a wallet for the owner with the initial balance
+            await Wallet.create({
+                user_id: owner.owner_id,
+                user_type: 'Owner',
+                balance: parseFloat(initial_balance), // Set the initial balance
+                coin_type: 'USD',
+            }, { transaction });
 
-            res.status(201).json({ success: true, data: client });
+            await transaction.commit(); // Commit the transaction
+            res.status(201).json({ success: true, data: owner });
         } catch (error) {
-            console.error('Error in createClient:', error);
+            await transaction.rollback(); // Rollback the transaction on error
+            console.error('Error in registerOwner:', error);
             res.status(500).json({ success: false, error: error.message });
         }
     },
+
 
     // Update a client/website
     updateClient: async (req, res) => {

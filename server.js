@@ -2,10 +2,14 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors'; // Import CORS
 import sequelize from './config/db.js';
-import authRoutes from './routes/admin/authRoutes.js';
+import userAuthRoutes from './routes/user/userAuthRoutes.js';
+import ownerAuthRoutes from './routes/admin/ownerAuthRoutes.js'
+
 import ownerRoutes from './routes/admin/ownerRoutes.js'
 import userRoutes from './routes/admin/userRoutes.js';
-import walletRoutes from './routes/admin/walletRoutes.js';
+
+import adminWalletRoutes from './routes/admin/adminWalletRoutes.js';
+import userWalletRoutes from './routes/user/userWalletRoutes.js';
 import withdrawalRoutes from './routes/admin/withdrawalRoutes.js';
 dotenv.config();
 
@@ -20,18 +24,22 @@ app.use((req, res, next) => {
 });
 app.use(
     cors({
-      origin: "http://localhost:3001", // Allow only this origin
+      origin: ["http://localhost:3001","http://localhost:3000"], // Allow only this origin
       methods: ["GET", "POST", "PUT", "DELETE"], // Allowed HTTP methods
       credentials: true, // Allow cookies and credentials
     })
   );
 
 // Routes
-app.use('/api/admin', authRoutes);
-app.use('/api/admin/',ownerRoutes)
 
+
+
+app.use('/api/user', userAuthRoutes);
+app.use('/api/admin',ownerAuthRoutes);
+app.use('/api/admin/',ownerRoutes)
 app.use('/api/admin', userRoutes);
-app.use('/api/admin', walletRoutes);
+app.use('/api/admin', adminWalletRoutes);
+app.use('/api/user', userWalletRoutes);
 app.use('/api/admin', withdrawalRoutes);
 
 // Start the server

@@ -1,4 +1,4 @@
-import User from '../../model/user/User.js';
+import User from '../../model/admin/User.js';
 
 const UserController = {
     createUser: async (req, res) => {
@@ -11,14 +11,7 @@ const UserController = {
         }
     },
 
-    getAllUsers: async (req, res) => {
-        try {
-            const users = await User.findAll();
-            res.status(200).json(users);
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    },
+ 
 };
 
 export default UserController;
