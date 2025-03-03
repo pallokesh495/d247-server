@@ -3,9 +3,10 @@ import dotenv from 'dotenv';
 import cors from 'cors'; // Import CORS
 import sequelize from './config/db.js';
 import authRoutes from './routes/admin/authRoutes.js';
+import ownerRoutes from './routes/admin/ownerRoutes.js'
 import userRoutes from './routes/admin/userRoutes.js';
 import walletRoutes from './routes/admin/walletRoutes.js';
-
+import withdrawalRoutes from './routes/admin/withdrawalRoutes.js';
 dotenv.config();
 
 const app = express();
@@ -27,8 +28,11 @@ app.use(
 
 // Routes
 app.use('/api/admin', authRoutes);
+app.use('/api/admin/',ownerRoutes)
+
 app.use('/api/admin', userRoutes);
 app.use('/api/admin', walletRoutes);
+app.use('/api/admin', withdrawalRoutes);
 
 // Start the server
 sequelize.sync().then(() => {

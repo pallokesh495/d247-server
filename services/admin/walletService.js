@@ -11,7 +11,9 @@ const WalletService = {
                 throw new Error('Invalid amount');
             }
 
-            let wallet = await Wallet.findOne({ where: { user_id: userId } });
+            const wallet = await Wallet.findOne({ 
+                where: { user_id: userId, user_type: 'Owner' }, // Add user_type
+            });
 
             // If wallet doesn't exist, create one
             if (!wallet) {
@@ -38,7 +40,9 @@ const WalletService = {
                 throw new Error('Invalid amount');
             }
 
-            let wallet = await Wallet.findOne({ where: { user_id: userId } });
+            const wallet = await Wallet.findOne({ 
+                where: { user_id: userId, user_type: 'Owner' }, // Add user_type
+            });
 
             // If wallet doesn't exist, create one
             if (!wallet) {
@@ -63,7 +67,9 @@ const WalletService = {
     getBalance: async (userId) => {
         try {
             console.log('Service - getBalance:', { userId }); // Debugging log
-            const wallet = await Wallet.findOne({ where: { user_id: userId } });
+            const wallet = await Wallet.findOne({ 
+                where: { user_id: userId, user_type: 'Owner' }, // Add user_type
+            });
             return wallet ? parseFloat(wallet.balance) : 0;
         } catch (error) {
             console.error('Error in getBalance service:', error);

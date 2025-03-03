@@ -55,7 +55,12 @@ const User = sequelize.define('User', {
         },
         afterCreate: async (user) => {
             // Automatically create a wallet for the user
-            await Wallet.create({ user_id: user.user_id, balance: 0.0, coin_type: user.coin_type });
+            await Wallet.create({ 
+                user_id: user.user_id, 
+                user_type: 'User', // Add user_type
+                balance: 0.0, 
+                coin_type: user.coin_type,
+            });
 
             // Generate a unique referral code and link
             const referralCode = generateReferralCode(user.user_id);

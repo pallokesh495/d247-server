@@ -11,10 +11,14 @@ const Wallet = sequelize.define('Wallet', {
         type: DataTypes.INTEGER,
         allowNull: false,
     },
+    user_type: {
+        type: DataTypes.ENUM('Owner', 'User', 'Agent', 'MasterAgent'),
+        allowNull: false,
+    },
     coin_type: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'USD', // Default coin type
+        defaultValue: 'USD',
     },
     balance: {
         type: DataTypes.DECIMAL(15, 2),
