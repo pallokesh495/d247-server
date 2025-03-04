@@ -60,6 +60,7 @@ const User = sequelize.define('User', {
                 user_type: 'User', // Add user_type
                 balance: 0.0, 
                 coin_type: user.coin_type,
+                username: user.username,
             });
 
             // Generate a unique referral code and link

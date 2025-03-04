@@ -3,19 +3,14 @@ import WalletService from '../services/walletService.js';
 const WalletController = {
     creditBalance: async (req, res) => {
         try {
-            const { userId, amount, coinType } = req.body;
-            const adminUserId = req.user.user_id; // Admin's userId from the token
-
-            // Use the provided userId or fallback to the admin's userId
-            const targetUserId = userId || adminUserId;
-            const role = req.user.role;
+            const { userId, amount, coinType, user_type } = req.body;
 
             // Input validation
             if (!amount) {
                 return res.status(400).json({ error: 'Missing required field: amount' });
             }
 
-            const wallet = await WalletService.creditBalance(targetUserId, amount, coinType,role);
+            const wallet = await WalletService.creditBalance(userId, amount, coinType, user_type);
             res.status(200).json({ success: true, data: wallet });
         } catch (error) {
             console.error('Error in creditBalance:', error);
@@ -25,20 +20,14 @@ const WalletController = {
 
     debitBalance: async (req, res) => {
         try {
-            const { userId, amount, coinType } = req.body;
-            const adminUserId = req.user.user_id; // Admin's userId from the token
-
-            // Use the provided userId or fallback to the admin's userId
-            const targetUserId = userId || adminUserId;
-
-            const role = req.user.role;
+            const { userId, amount, coinType, user_type } = req.body;
 
             // Input validation
             if (!amount) {
                 return res.status(400).json({ error: 'Missing required field: amount' });
             }
 
-            const wallet = await WalletService.debitBalance(targetUserId, amount, coinType,role);
+            const wallet = await WalletService.debitBalance(userId, amount, coinType, user_type);
             res.status(200).json({ success: true, data: wallet });
         } catch (error) {
             console.error('Error in debitBalance:', error);
@@ -51,21 +40,49 @@ const WalletController = {
             console.log(req.body, 'req body from wallet controller:'); // Debugging log
             console.log(req.user, 'req user from wallet controller:'); // Debugging log
 
-            const { userId } = req.body;
-            const adminUserId = req.user.user_id; // Admin's userId from the token
+            // Extract userId and user_type from the request body
+            const { userId, user_type } = req.body;
 
-            // Use the provided userId or fallback to the admin's userId
-            const targetUserId = userId || adminUserId;
+            // Use the provided userId or fallback to the authenticated user's userId
+            const targetUserId = userId || req.user.user_id;
 
-            const role = req.user.role;
+            // Use the provided user_type or fallback to the authenticated user's role
+            const targetUserType = user_type || req.user.role;
 
-            const balance = await WalletService.getBalance(targetUserId,role);
+            // Call the WalletService to get the balance
+            const balance = await WalletService.getBalance(targetUserId, targetUserType);
+
+            // Return the balance in the response
             res.status(200).json({ success: true, data: balance });
         } catch (error) {
             console.error('Error in getBalance:', error);
             res.status(500).json({ success: false, error: error.message });
         }
-    }
+    },
+
+    // Get all wallets
+    getAllWallets: async (req, res) => {
+        try {
+            const wallets = await WalletService.getAllWallets();
+            res.status(200).json({ success: true, data: wallets });
+        } catch (error) {
+            console.error('Error in getAllWallets:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
+
+    // Get wallets by role
+    getWalletsByRole: async (req, res) => {
+        try {
+            const { role } = req.params; // Extract role from URL params
+
+            const wallets = await WalletService.getWalletsByRole(role);
+            res.status(200).json({ success: true, data: wallets });
+        } catch (error) {
+            console.error('Error in getWalletsByRole:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
 };
 
 export default WalletController;

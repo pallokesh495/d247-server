@@ -4,9 +4,11 @@ import cors from 'cors'; // Import CORS
 import sequelize from './config/db.js';
 import userAuthRoutes from './routes/user/userAuthRoutes.js';
 import ownerAuthRoutes from './routes/admin/ownerAuthRoutes.js'
+import agentAuthRoutes from './routes/admin/agentAuthRoutes.js'
 
 import ownerRoutes from './routes/admin/ownerRoutes.js'
 import userRoutes from './routes/admin/userRoutes.js';
+import agentRoutes from './routes/admin/agentRoutes.js'
 
 import adminWalletRoutes from './routes/admin/adminWalletRoutes.js';
 import userWalletRoutes from './routes/user/userWalletRoutes.js';
@@ -36,11 +38,17 @@ app.use(
 
 app.use('/api/user', userAuthRoutes);
 app.use('/api/admin',ownerAuthRoutes);
-app.use('/api/admin/',ownerRoutes)
+app.use('/api/admin',agentAuthRoutes)
+
+app.use('/api/admin',ownerRoutes)
 app.use('/api/admin', userRoutes);
+app.use('/api/admin', agentRoutes)
+
 app.use('/api/admin', adminWalletRoutes);
 app.use('/api/user', userWalletRoutes);
+
 app.use('/api/admin', withdrawalRoutes);
+
 
 // Start the server
 sequelize.sync().then(() => {

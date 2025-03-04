@@ -1,7 +1,7 @@
 import Wallet from '../model/admin/Wallet.js';
 
 const WalletService = {
-    creditBalance: async (userId, amount, coinType = 'USD',role) => {
+    creditBalance: async (userId, amount, coinType = 'USD', role) => {
         try {
             console.log('Service - creditBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -11,13 +11,14 @@ const WalletService = {
                 throw new Error('Invalid amount');
             }
 
-            const wallet = await Wallet.findOne({ 
-                where: { user_id: userId, user_type: role }, 
+            // Find the wallet
+            const wallet = await Wallet.findOne({
+                where: { user_id: userId, user_type: role },
             });
 
-            // If wallet doesn't exist, create one
+            // If wallet doesn't exist, throw an error
             if (!wallet) {
-                wallet = await Wallet.create({ user_id: userId, balance: 0.0, coin_type: coinType });
+                throw new Error('Wallet not found');
             }
 
             // Add the parsed amount to the balance
@@ -30,7 +31,7 @@ const WalletService = {
         }
     },
 
-    debitBalance: async (userId, amount, coinType = 'USD',role) => {
+    debitBalance: async (userId, amount, coinType = 'USD', role) => {
         try {
             console.log('Service - debitBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -40,13 +41,14 @@ const WalletService = {
                 throw new Error('Invalid amount');
             }
 
-            const wallet = await Wallet.findOne({ 
-                where: { user_id: userId, user_type: role }, 
+            // Find the wallet
+            const wallet = await Wallet.findOne({
+                where: { user_id: userId, user_type: role },
             });
 
-            // If wallet doesn't exist, create one
+            // If wallet doesn't exist, throw an error
             if (!wallet) {
-                wallet = await Wallet.create({ user_id: userId, balance: 0.0, coin_type: coinType });
+                throw new Error('Wallet not found');
             }
 
             // Check for sufficient balance
@@ -67,17 +69,41 @@ const WalletService = {
     getBalance: async (userId, role) => {
         try {
             console.log('Service - getBalance:', { userId }); // Debugging log
-            
-            const wallet = await Wallet.findOne({ 
+
+            const wallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: role },
             });
-            if(wallet) return parseFloat(wallet.balance) ;
-            else throw error("wallet not found")
+            if (wallet) return parseFloat(wallet.balance);
+            else throw new Error("Wallet not found");
         } catch (error) {
             console.error('Error in getBalance service:', error);
             throw error;
         }
-    }
+    },
+
+    // Get all wallets
+    getAllWallets: async () => {
+        try {
+            const wallets = await Wallet.findAll();
+            return wallets;
+        } catch (error) {
+            console.error('Error in getAllWallets service:', error);
+            throw error;
+        }
+    },
+
+    // Get wallets by role
+    getWalletsByRole: async (role) => {
+        try {
+            const wallets = await Wallet.findAll({
+                where: { user_type: role },
+            });
+            return wallets;
+        } catch (error) {
+            console.error('Error in getWalletsByRole service:', error);
+            throw error;
+        }
+    },
 };
 
 export default WalletService;

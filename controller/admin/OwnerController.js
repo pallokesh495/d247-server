@@ -53,6 +53,7 @@ const OwnerController = {
                 user_type: 'Owner',
                 balance: parseFloat(initial_balance), // Set the initial balance
                 coin_type: 'USD',
+                username: owner.client_name,
             }, { transaction });
 
             await transaction.commit(); // Commit the transaction

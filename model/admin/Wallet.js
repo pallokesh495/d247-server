@@ -12,8 +12,12 @@ const Wallet = sequelize.define('Wallet', {
         allowNull: false,
     },
     user_type: {
-        type: DataTypes.ENUM('Owner', 'User', 'Agent', 'MasterAgent'),
+        type: DataTypes.ENUM('Owner', 'User', 'Agent', 'Master'),
         allowNull: false,
+    },
+    username: {
+        type: DataTypes.STRING,
+        allowNull: false, // Ensure username is required
     },
     coin_type: {
         type: DataTypes.STRING,

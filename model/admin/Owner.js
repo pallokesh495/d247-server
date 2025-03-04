@@ -1,6 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../../config/db.js';
 import bcrypt from 'bcryptjs'; // For password hashing
+import Wallet from './Wallet.js'; // Import Wallet model
 
 const Owner = sequelize.define('Owner', {
     owner_id: {
@@ -84,6 +85,16 @@ const Owner = sequelize.define('Owner', {
                 owner.password = await bcrypt.hash(owner.password, salt);
             }
         },
+        // afterCreate: async (owner) => {
+        //     console.log(`Creating wallet for owner with ID: ${owner.owner_id}`);
+        //     await Wallet.create({
+        //         user_id: owner.owner_id,
+        //         user_type: 'Owner',
+        //         username: owner.client_name, // Use client_name as the username
+        //         balance: 0.0,
+        //         coin_type: 'USD',
+        //     });
+        // },
     },
 });
 

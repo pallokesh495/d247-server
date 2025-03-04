@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import TokenBlacklist from '../../model/admin/TokenBlacklist.js';
 
 const authMiddleware = async (req, res, next) => {
+    console.log("admin auuthorised")
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
     if (!token) {
