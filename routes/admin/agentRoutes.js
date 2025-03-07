@@ -1,7 +1,7 @@
 import express from 'express';
 const router = express.Router();
 import AgentController from '../../controller/admin/AgentController.js';
-import authMiddleware from '../../middleware/admin/authMiddleware.js';
+import authMiddleware from '../../middleware/authMiddleware.js';
 
 // Register a new agent
 router.post('/agent/register', AgentController.registerAgent);

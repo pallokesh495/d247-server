@@ -13,6 +13,10 @@ import agentRoutes from './routes/admin/agentRoutes.js'
 import adminWalletRoutes from './routes/admin/adminWalletRoutes.js';
 import userWalletRoutes from './routes/user/userWalletRoutes.js';
 import withdrawalRoutes from './routes/admin/withdrawalRoutes.js';
+
+import affiiateRoutes from './routes/admin/affiliateRoutes.js'
+
+
 dotenv.config();
 
 const app = express();
@@ -47,7 +51,10 @@ app.use('/api/admin', agentRoutes)
 app.use('/api/admin', adminWalletRoutes);
 app.use('/api/user', userWalletRoutes);
 
+app.use('/api/user', withdrawalRoutes);
 app.use('/api/admin', withdrawalRoutes);
+
+app.use('/api/admin',affiiateRoutes);
 
 
 // Start the server

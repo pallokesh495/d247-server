@@ -37,7 +37,7 @@ const WithdrawalController = {
             const { withdrawalId, status } = req.body;
 
             // Check if the user is an admin
-            if (req.user.role !== 'Admin') {
+            if (req.user.role !== 'Agent' && req.user.role !== 'Owner') {
                 return res.status(403).json({ error: 'Access denied. Only admins can update withdrawal status.' });
             }
 
@@ -62,13 +62,11 @@ const WithdrawalController = {
     getAllWithdrawals: async (req, res) => {
         try {
             // Check if the user is an admin
-            if (req.user.role !== 'Admin') {
+            if (req.user.role !== 'Agent' && req.user.role !== 'Owner') {
                 return res.status(403).json({ error: 'Access denied. Only admins can view all withdrawals.' });
             }
 
-            const withdrawals = await Withdrawal.findAll({ 
-                where: { uid: userId, user_type: 'User' }, // Add user_type
-            });
+            const withdrawals = await Withdrawal.findAll();
             res.status(200).json({ success: true, data: withdrawals });
         } catch (error) {
             console.error('Error in getAllWithdrawals:', error);
