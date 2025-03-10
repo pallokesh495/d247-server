@@ -65,7 +65,7 @@ const WalletService = {
             throw error;
         }
     },
-
+//get balance
     getBalance: async (userId, role) => {
         try {
             console.log('Service - getBalance:', { userId }); // Debugging log
@@ -73,8 +73,15 @@ const WalletService = {
             const wallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: role },
             });
-            if (wallet) return parseFloat(wallet.balance);
-            else throw new Error("Wallet not found");
+
+            if (wallet) {
+                return {
+                    balance: parseFloat(wallet.balance),
+                    coin_type: wallet.coin_type,
+                };
+            } else {
+                throw new Error("Wallet not found");
+            }
         } catch (error) {
             console.error('Error in getBalance service:', error);
             throw error;

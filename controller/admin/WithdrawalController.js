@@ -1,11 +1,11 @@
-import Withdrawal from '../../model/admin/Withdrawal.js'
+import Withdrawal from '../../model/admin/Withdrawal.js';
 import User from '../../model/user/User.js';
 
 const WithdrawalController = {
     // User creates a withdrawal request
     createWithdrawal: async (req, res) => {
         try {
-            const { amount, coinType, walletAddress } = req.body;
+            const { withdraw_amount, withdraw_currency, bank, account_holder_name, account_number, ifsc_code, upi_id } = req.body;
             const userId = req.user.user_id; // Get userId from the token
 
             // Fetch user details
@@ -16,11 +16,14 @@ const WithdrawalController = {
 
             // Create a withdrawal request
             const withdrawal = await Withdrawal.create({
-                uid: userId,
-                name: user.username,
-                amount,
-                coin_type: coinType,
-                wallet_address: walletAddress,
+                userid: userId,
+                withdraw_currency,
+                bank,
+                account_holder_name,
+                account_number,
+                ifsc_code,
+                upi_id,
+                withdraw_amount,
                 status: 'In Queue', // Default status
             });
 
@@ -79,7 +82,7 @@ const WithdrawalController = {
         try {
             const userId = req.user.user_id; // Get userId from the token
 
-            const withdrawals = await Withdrawal.findAll({ where: { uid: userId } });
+            const withdrawals = await Withdrawal.findAll({ where: { userid: userId } });
             res.status(200).json({ success: true, data: withdrawals });
         } catch (error) {
             console.error('Error in getUserWithdrawals:', error);
