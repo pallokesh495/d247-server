@@ -1,7 +1,7 @@
 import Wallet from '../model/admin/Wallet.js';
 
 const WalletService = {
-    creditBalance: async (userId, amount, coinType = 'USD', role) => {
+    creditBalance: async (userId, amount, coinType = 'USD', role, transaction) => {
         try {
             console.log('Service - creditBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -14,6 +14,7 @@ const WalletService = {
             // Find the wallet
             const wallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: role },
+                transaction, // Pass the transaction to the query
             });
 
             // If wallet doesn't exist, throw an error
@@ -23,7 +24,8 @@ const WalletService = {
 
             // Add the parsed amount to the balance
             wallet.balance = parseFloat(wallet.balance) + parsedAmount;
-            await wallet.save();
+            await wallet.save({ transaction }); // Save with transaction
+
             return wallet;
         } catch (error) {
             console.error('Error in creditBalance service:', error);
@@ -31,7 +33,7 @@ const WalletService = {
         }
     },
 
-    debitBalance: async (userId, amount, coinType = 'USD', role) => {
+    debitBalance: async (userId, amount, coinType = 'USD', role, transaction) => {
         try {
             console.log('Service - debitBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -44,6 +46,7 @@ const WalletService = {
             // Find the wallet
             const wallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: role },
+                transaction, // Pass the transaction to the query
             });
 
             // If wallet doesn't exist, throw an error
@@ -58,14 +61,16 @@ const WalletService = {
 
             // Subtract the parsed amount from the balance
             wallet.balance = parseFloat(wallet.balance) - parsedAmount;
-            await wallet.save();
+            await wallet.save({ transaction }); // Save with transaction
+
             return wallet;
         } catch (error) {
             console.error('Error in debitBalance service:', error);
             throw error;
         }
     },
-//get balance
+
+
     getBalance: async (userId, role) => {
         try {
             console.log('Service - getBalance:', { userId }); // Debugging log
@@ -78,6 +83,7 @@ const WalletService = {
                 return {
                     balance: parseFloat(wallet.balance),
                     coin_type: wallet.coin_type,
+                    username: wallet.username,
                 };
             } else {
                 throw new Error("Wallet not found");

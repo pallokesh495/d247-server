@@ -1,18 +1,32 @@
 import WalletService from '../services/walletService.js';
+import sequelize from '../config/db.js';
 
 const WalletController = {
     creditBalance: async (req, res) => {
+        // Start a transaction
+        const transaction = await sequelize.transaction();
         try {
             const { userId, amount, coinType, user_type } = req.body;
+            const loggedInUserId = req.user.user_id; // Assuming the logged-in user's ID is available in req.user
 
             // Input validation
             if (!amount) {
                 return res.status(400).json({ error: 'Missing required field: amount' });
             }
 
-            const wallet = await WalletService.creditBalance(userId, amount, coinType, user_type);
+            // Debit the amount from the logged-in user's balance
+            await WalletService.debitBalance(loggedInUserId, amount, coinType, req.user.role, transaction);
+
+            // Credit the amount to the target user's balance
+            const wallet = await WalletService.creditBalance(userId, amount, coinType, user_type, transaction);
+
+            // Commit the transaction if everything is successful
+            await transaction.commit();
+
             res.status(200).json({ success: true, data: wallet });
         } catch (error) {
+            // Rollback the transaction in case of any error
+            await transaction.rollback();
             console.error('Error in creditBalance:', error);
             res.status(500).json({ success: false, error: error.message });
         }
@@ -47,7 +61,12 @@ const WalletController = {
             const targetUserId = userId || req.user.user_id;
 
             // Use the provided user_type or fallback to the authenticated user's role
-            const targetUserType = user_type || req.user.role;
+            let targetUserType = user_type || req.user.role;
+            
+            if(targetUserType==="agent")targetUserType="Agent";
+            if(targetUserType==="master")targetUserType="Master";
+            if(targetUserType==="owner")targetUserType="owner";
+            if(targetUserType==="user")targetUserType="User";
 
             // Call the WalletService to get the balance
             const balance = await WalletService.getBalance(targetUserId, targetUserType);

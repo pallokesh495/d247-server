@@ -6,7 +6,7 @@ const AgentController = {
     registerAgent: async (req, res) => {
         const transaction = await sequelize.transaction(); // Start a transaction
         try {
-            const { name, email, password, role } = req.body;
+            const { name, email, password, role, initialBalance } = req.body;
 
             // Check if the email is already registered
             const existingAgent = await Agent.findOne({ where: { email } });
@@ -20,7 +20,7 @@ const AgentController = {
                 email,
                 password,
                 role,
-            }, { transaction });
+            }, { transaction, initialBalance }); // Pass initialBalance to the afterCreate hook
 
             await transaction.commit(); // Commit the transaction
             res.status(201).json({ success: true, data: agent });
@@ -30,7 +30,6 @@ const AgentController = {
             res.status(500).json({ success: false, error: error.message });
         }
     },
-
 
     // Get all agents
     getAllAgents: async (req, res) => {

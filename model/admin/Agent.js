@@ -43,13 +43,14 @@ const Agent = sequelize.define('Agent', {
                 agent.password = await bcrypt.hash(agent.password, salt);
             }
         },
-        afterCreate: async (agent) => {
+        afterCreate: async (agent, options) => {
             console.log(`Creating wallet for agent with ID: ${agent.agent_id}`);
+            const initialBalance = options.initialBalance || 0.0; // Default to 0.0 if not provided
             await Wallet.create({
                 user_id: agent.agent_id,
                 user_type: agent.role === 'master' ? 'Master' : 'Agent',
                 username: agent.name, // Use agent's name as the username
-                balance: 0.0,
+                balance: initialBalance,
                 coin_type: 'USD',
             });
         },
