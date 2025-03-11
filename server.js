@@ -5,6 +5,7 @@ import sequelize from './config/db.js';
 import userAuthRoutes from './routes/user/userAuthRoutes.js';
 import ownerAuthRoutes from './routes/admin/ownerAuthRoutes.js';
 import agentAuthRoutes from './routes/admin/agentAuthRoutes.js';
+import transactionRoutes from './routes/admin/transactionRoutes.js'
 import ownerRoutes from './routes/admin/ownerRoutes.js';
 import userRoutes from './routes/admin/userRoutes.js';
 import agentRoutes from './routes/admin/agentRoutes.js';
@@ -37,6 +38,7 @@ app.use(
 app.use('/api/user', userAuthRoutes);
 app.use('/api/admin', ownerAuthRoutes);
 app.use('/api/admin', agentAuthRoutes);
+app.use('/api/admin', transactionRoutes); 
 app.use('/api/admin', ownerRoutes);
 app.use('/api/admin', userRoutes);
 app.use('/api/admin', agentRoutes);
@@ -45,7 +47,8 @@ app.use('/api/user', userWalletRoutes);
 app.use('/api/user', withdrawalRoutes);
 app.use('/api/admin', withdrawalRoutes);
 app.use('/api/admin', affiliateRoutes);
-app.use('/api/user', depositRoutes); // Add deposit routes
+app.use('/api/user', depositRoutes); 
+
 
 // Start the server
 sequelize.sync().then(() => {

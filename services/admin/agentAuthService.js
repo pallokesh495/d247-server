@@ -15,7 +15,7 @@ const AuthService = {
 
         // Generate a JWT token with user_id and role
         const token = jwt.sign(
-            { user_id: user.agent_id, role: user.role }, // Ensure user_id is included
+            { user_id: user.agent_id, role: user.role,  }, // Ensure user_id is included
             process.env.JWT_SECRET,
             { expiresIn: process.env.JWT_EXPIRATION }
         );
