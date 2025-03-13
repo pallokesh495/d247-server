@@ -4,7 +4,7 @@ import AgentController from '../../controller/admin/AgentController.js';
 import authMiddleware from '../../middleware/authMiddleware.js';
 
 // Register a new agent
-router.post('/agent/register', AgentController.registerAgent);
+router.post('/agent/register',authMiddleware, AgentController.registerAgent);
 
 
 // Get all agents (protected route)

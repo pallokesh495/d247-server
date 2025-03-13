@@ -1,13 +1,18 @@
 import Agent from '../../model/admin/Agent.js';
 import sequelize from '../../config/db.js';
 import bcrypt from 'bcryptjs';
+import WalletService from '../../services/walletService.js';
 
 const AgentController = {
-    // Register a new agent
+      // Register a new agent
     registerAgent: async (req, res) => {
+        
         const transaction = await sequelize.transaction(); // Start a transaction
         try {
-            const { name, email, password, role, initialBalance } = req.body;
+            let { name, email, password, role, initialBalance } = req.body;
+            const loggedInUserId = req.user.user_id; // Logged-in user's ID
+            const loggedInUsername = req.user.username; // Logged-in user's username
+            const loggedInUserRole = req.user.role; // Logged-in user's role
 
             // Check if the email is already registered
             const existingAgent = await Agent.findOne({ where: { email } });
@@ -15,13 +20,28 @@ const AgentController = {
                 return res.status(400).json({ success: false, error: 'Email already registered' });
             }
 
+            if (role === "master") role = "Master";
+            if (role === "agent") role = "Agent";
+
             // Create a new agent
             const agent = await Agent.create({
                 name,
                 email,
                 password,
                 role,
-            }, { transaction, initialBalance }); // Pass initialBalance to the afterCreate hook
+            }, { transaction });
+
+            // Step 2: Create a wallet for the agent
+            await WalletService.createWallet(agent.agent_id, role, transaction, agent.name); // Pass the agent's name as username
+
+            // Step 3: Debit the logged-in user's balance and credit the initial balance to the agent
+            if (initialBalance) {
+                // Debit the logged-in user's balance
+                await WalletService.debitBalance(loggedInUserId, initialBalance, 'default', loggedInUserRole, transaction, loggedInUsername);
+
+                // Credit the initial balance to the agent
+                await WalletService.creditBalance(agent.agent_id, initialBalance, 'default', role, transaction, loggedInUsername);
+            }
 
             await transaction.commit(); // Commit the transaction
             res.status(201).json({ success: true, data: agent });

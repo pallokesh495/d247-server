@@ -1,16 +1,44 @@
 import User from '../../model/user/User.js';
 import bcrypt from 'bcryptjs';
 import sequelize from '../../config/db.js';
+import WalletService from '../../services/walletService.js';
 
 const UserController = {
     // Create a new user
     createUser: async (req, res) => {
+
+       
+        const transaction = await sequelize.transaction(); // Start a transaction
+        
         try {
             const userData = req.body;
-            const user = await User.create(userData);
-            res.status(201).json(user);
+            const { initialBalance, ...userDetails } = userData;
+            
+            const loggedInUserId = req.user.user_id; // Logged-in user's ID
+            const loggedInUsername = req.user.username; // Logged-in user's username
+            const loggedInUserRole = req.user.role; // Logged-in user's role
+
+            // Create a new user
+            const user = await User.create(userDetails, { transaction });
+
+            // Step 2: Create a wallet for the user
+            await WalletService.createWallet(user.user_id, 'user', transaction, user.username); // Pass the user's username
+
+            // Step 3: Debit the logged-in user's balance and credit the initial balance to the user
+            if (initialBalance) {
+                // Debit the logged-in user's balance
+                await WalletService.debitBalance(loggedInUserId, initialBalance, 'default', loggedInUserRole, transaction, loggedInUsername);
+
+                // Credit the initial balance to the user
+                await WalletService.creditBalance(user.user_id, initialBalance, 'default', 'user', transaction, loggedInUsername);
+            }
+
+            await transaction.commit(); // Commit the transaction
+            res.status(201).json({ success: true, data: user });
         } catch (error) {
-            res.status(500).json({ error: error.message });
+            await transaction.rollback(); // Rollback the transaction on error
+            console.error('Error in createUser:', error);
+            res.status(500).json({ success: false, error: error.message });
         }
     },
 

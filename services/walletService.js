@@ -2,45 +2,88 @@ import Wallet from '../model/admin/Wallet.js';
 import Transaction from '../model/admin/Transaction.js';
 
 const WalletService = {
+    createWallet: async (userId, userType, transaction, username) => {
+        try {
+
+            if(userType==="master")userType="Master"
+            if(userType==="user")userType="User"
+            if(userType==="owner")userType="Owner"
+            if(userType==="agent")userType="Agent"
+
+            // Check if the wallet already exists
+            const existingWallet = await Wallet.findOne({
+                where: { user_id: userId, user_type: userType },
+                transaction,
+            });
+
+            // If the wallet doesn't exist, create it
+            if (!existingWallet) {
+                const newWallet = await Wallet.create(
+                    {
+                        user_id: userId,
+                        user_type: userType,
+                        balance: 0, // Default balance
+                        coin_type: 'USD', // Default coin type
+                        username: username, // Pass the username
+                    },
+                    { transaction }
+                );
+                return newWallet;
+            }
+
+            return existingWallet;
+        } catch (error) {
+            console.error('Error in createWallet service:', error);
+            throw error;
+        }
+    },
+
     creditBalance: async (userId, amount, coinType = 'USD', role, transaction, loggedInUsername) => {
         try {
             console.log('Service - creditBalance:', { userId, amount, coinType }); // Debugging log
-    
+
             // Parse amount as a number
             const parsedAmount = parseFloat(amount);
             if (isNaN(parsedAmount)) {
                 throw new Error('Invalid amount');
             }
-    
+
+            if(role==="master")role="Master"
+            if(role==="user")role="User"
+            if(role==="owner")role="Owner"
+            if(role==="agent")role="Agent"
+
             // Find the wallet
             const wallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: role },
                 transaction, // Pass the transaction to the query
             });
-    
+
             // If wallet doesn't exist, throw an error
             if (!wallet) {
                 throw new Error('Wallet not found');
             }
-            console.log("______________________wallet",wallet)
-    
+            console.log("______________________wallet", wallet);
+
             // Add the parsed amount to the balance
             wallet.balance = parseFloat(wallet.balance) + parsedAmount;
             await wallet.save({ transaction }); // Save with transaction
-    
+
             // Save the transaction
-            await Transaction.create({
-                
-                credit: wallet.username, // Receiver's username
-                debit: loggedInUsername, // Sender's username
-                amount: parsedAmount,
-                balance: wallet.balance,
-                wallet_id: wallet.wallet_id, // Wallet ID of the receiver
-            }, { transaction });
-    
+            await Transaction.create(
+                {
+                    credit: wallet.username, // Receiver's username
+                    debit: loggedInUsername, // Sender's username
+                    amount: parsedAmount,
+                    balance: wallet.balance,
+                    wallet_id: wallet.wallet_id, // Wallet ID of the receiver
+                },
+                { transaction }
+            );
+
             // Ensure only the last 1,000 transactions are kept
             await WalletService.cleanupTransactions(wallet.wallet_id, transaction);
-    
+
             return wallet;
         } catch (error) {
             console.error('Error in creditBalance service:', error);
@@ -51,7 +94,7 @@ const WalletService = {
     debitBalance: async (userId, amount, coinType = 'USD', role, transaction, loggedInUsername) => {
         try {
             console.log('Service - debitBalance:', { userId, amount, coinType }); // Debugging log
-    
+
             // Parse amount as a number
             const parsedAmount = parseFloat(amount);
             if (isNaN(parsedAmount)) {
@@ -62,46 +105,49 @@ const WalletService = {
             if (role === "master") role = "Master";
             if (role === "owner") role = "owner";
             if (role === "user") role = "User";
-    
+
             // Find the wallet
             const wallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: role },
                 transaction, // Pass the transaction to the query
             });
-    
+
             // If wallet doesn't exist, throw an error
             if (!wallet) {
                 throw new Error('Wallet not found');
             }
-    
+
             // Check for sufficient balance
             if (parseFloat(wallet.balance) < parsedAmount) {
                 throw new Error('Insufficient balance');
             }
-    
+
             // Subtract the parsed amount from the balance
             wallet.balance = parseFloat(wallet.balance) - parsedAmount;
             await wallet.save({ transaction }); // Save with transaction
-    
+
             // Save the transaction
-            await Transaction.create({
-                
-                credit: loggedInUsername, // Receiver's username (logged-in user)
-                debit: wallet.username, // Sender's username
-                amount: parsedAmount,
-                balance: wallet.balance,
-                wallet_id: wallet.wallet_id, // Wallet ID of the sender
-            }, { transaction });
-    
+            await Transaction.create(
+                {
+                    credit: loggedInUsername, // Receiver's username (logged-in user)
+                    debit: wallet.username, // Sender's username
+                    amount: parsedAmount,
+                    balance: wallet.balance,
+                    wallet_id: wallet.wallet_id, // Wallet ID of the sender
+                },
+                { transaction }
+            );
+
             // Ensure only the last 1,000 transactions are kept
             await WalletService.cleanupTransactions(wallet.wallet_id, transaction);
-    
+
             return wallet;
         } catch (error) {
             console.error('Error in debitBalance service:', error);
             throw error;
         }
     },
+
     // Function to keep only the last 1,000 transactions per wallet
     cleanupTransactions: async (wallet_id, transaction) => {
         try {
@@ -132,7 +178,6 @@ const WalletService = {
             throw error;
         }
     },
-
 
     getBalance: async (userId, role) => {
         try {

@@ -61,26 +61,26 @@ const User = sequelize.define('User', {
         },
         afterCreate: async (user) => {
             // Automatically create a wallet for the user
-            await Wallet.create({ 
-                user_id: user.user_id, 
-                user_type: 'User', // Add user_type
-                balance: 0.0, 
-                coin_type: user.coin_type,
-                username: user.username,
-            });
+            // await Wallet.create({ 
+            //     user_id: user.user_id, 
+            //     user_type: 'User', // Add user_type
+            //     balance: 0.0, 
+            //     coin_type: user.coin_type,
+            //     username: user.username,
+            // });
 
             // Generate a unique referral code and link
-            const referralCode = generateReferralCode(user.user_id);
-            const referralLink = `http://yourapp.com/signup?ref=${referralCode}`;
+            // const referralCode = generateReferralCode(user.user_id);
+            // const referralLink = `http://yourapp.com/signup?ref=${referralCode}`;
 
-            // Create an affiliate entry for the new user
-            await Affiliate.create({
-                uid: user.user_id,
-                name: user.username,
-                referral_link: referralLink,
-                referral_code: referralCode,
-                friends: 0, // Initialize friends count to 0
-            });
+            // // Create an affiliate entry for the new user
+            // await Affiliate.create({
+            //     uid: user.user_id,
+            //     name: user.username,
+            //     referral_link: referralLink,
+            //     referral_code: referralCode,
+            //     friends: 0, // Initialize friends count to 0
+            // });
         },
     },
 });
