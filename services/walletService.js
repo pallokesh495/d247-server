@@ -2,20 +2,20 @@ import Wallet from '../model/admin/Wallet.js';
 import Transaction from '../model/admin/Transaction.js';
 
 const WalletService = {
-    createWallet: async (userId, userType, transaction, username) => {
+    createWallet: async (userId, userType, transaction, username, coinType = 'USDT') => {
         try {
-
-            if(userType==="master")userType="Master"
-            if(userType==="user")userType="User"
-            if(userType==="owner")userType="Owner"
-            if(userType==="agent")userType="Agent"
-
+            // Normalize userType
+            if (userType === "master") userType = "Master";
+            if (userType === "user") userType = "User";
+            if (userType === "owner") userType = "Owner";
+            if (userType === "agent") userType = "Agent";
+    
             // Check if the wallet already exists
             const existingWallet = await Wallet.findOne({
                 where: { user_id: userId, user_type: userType },
                 transaction,
             });
-
+    
             // If the wallet doesn't exist, create it
             if (!existingWallet) {
                 const newWallet = await Wallet.create(
@@ -23,22 +23,22 @@ const WalletService = {
                         user_id: userId,
                         user_type: userType,
                         balance: 0, // Default balance
-                        coin_type: 'USD', // Default coin type
+                        inr_balance: 0, // Default INR balance
+                        coin_type: coinType, // Use provided coinType or default to 'USDT'
                         username: username, // Pass the username
                     },
                     { transaction }
                 );
                 return newWallet;
             }
-
+    
             return existingWallet;
         } catch (error) {
             console.error('Error in createWallet service:', error);
             throw error;
         }
     },
-
-    creditBalance: async (userId, amount, coinType = 'USD', role, transaction, loggedInUsername) => {
+    creditBalance: async (userId, amount, coinType = 'USDT', role, transaction, loggedInUsername) => {
         try {
             console.log('Service - creditBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -48,10 +48,10 @@ const WalletService = {
                 throw new Error('Invalid amount');
             }
 
-            if(role==="master")role="Master"
-            if(role==="user")role="User"
-            if(role==="owner")role="Owner"
-            if(role==="agent")role="Agent"
+            if (role === "master") role = "Master";
+            if (role === "user") role = "User";
+            if (role === "owner") role = "Owner";
+            if (role === "agent") role = "Agent";
 
             // Find the wallet
             const wallet = await Wallet.findOne({
@@ -63,10 +63,16 @@ const WalletService = {
             if (!wallet) {
                 throw new Error('Wallet not found');
             }
-            console.log("______________________wallet", wallet);
 
-            // Add the parsed amount to the balance
-            wallet.balance = parseFloat(wallet.balance) + parsedAmount;
+            // Update balance based on coinType
+            if (coinType.toLowerCase() === 'usdt') {
+                wallet.balance = parseFloat(wallet.balance) + parsedAmount;
+            } else if (coinType.toLowerCase() === 'inr') {
+                wallet.inr_balance = parseFloat(wallet.inr_balance) + parsedAmount;
+            } else {
+                throw new Error('Invalid coin type');
+            }
+
             await wallet.save({ transaction }); // Save with transaction
 
             // Save the transaction
@@ -75,7 +81,7 @@ const WalletService = {
                     credit: wallet.username, // Receiver's username
                     debit: loggedInUsername, // Sender's username
                     amount: parsedAmount,
-                    balance: wallet.balance,
+                    balance: coinType.toLowerCase() === 'usdt' ? wallet.balance : wallet.inr_balance,
                     wallet_id: wallet.wallet_id, // Wallet ID of the receiver
                 },
                 { transaction }
@@ -91,7 +97,7 @@ const WalletService = {
         }
     },
 
-    debitBalance: async (userId, amount, coinType = 'USD', role, transaction, loggedInUsername) => {
+    debitBalance: async (userId, amount, coinType = 'USDT', role, transaction, loggedInUsername) => {
         try {
             console.log('Service - debitBalance:', { userId, amount, coinType }); // Debugging log
 
@@ -103,7 +109,7 @@ const WalletService = {
 
             if (role === "agent") role = "Agent";
             if (role === "master") role = "Master";
-            if (role === "owner") role = "owner";
+            if (role === "owner") role = "Owner";
             if (role === "user") role = "User";
 
             // Find the wallet
@@ -117,13 +123,22 @@ const WalletService = {
                 throw new Error('Wallet not found');
             }
 
-            // Check for sufficient balance
-            if (parseFloat(wallet.balance) < parsedAmount) {
-                throw new Error('Insufficient balance');
+            // Check for sufficient balance based on coinType
+            if (coinType.toLowerCase() === 'usdt' && parseFloat(wallet.balance) < parsedAmount) {
+                throw new Error('Insufficient USDT balance');
+            } else if (coinType.toLowerCase() === 'inr' && parseFloat(wallet.inr_balance) < parsedAmount) {
+                throw new Error('Insufficient INR balance');
             }
 
-            // Subtract the parsed amount from the balance
-            wallet.balance = parseFloat(wallet.balance) - parsedAmount;
+            // Subtract the parsed amount from the balance based on coinType
+            if (coinType.toLowerCase() === 'usdt') {
+                wallet.balance = parseFloat(wallet.balance) - parsedAmount;
+            } else if (coinType.toLowerCase() === 'inr') {
+                wallet.inr_balance = parseFloat(wallet.inr_balance) - parsedAmount;
+            } else {
+                throw new Error('Invalid coin type');
+            }
+
             await wallet.save({ transaction }); // Save with transaction
 
             // Save the transaction
@@ -132,7 +147,7 @@ const WalletService = {
                     credit: loggedInUsername, // Receiver's username (logged-in user)
                     debit: wallet.username, // Sender's username
                     amount: parsedAmount,
-                    balance: wallet.balance,
+                    balance: coinType.toLowerCase() === 'usdt' ? wallet.balance : wallet.inr_balance,
                     wallet_id: wallet.wallet_id, // Wallet ID of the sender
                 },
                 { transaction }
@@ -144,6 +159,30 @@ const WalletService = {
             return wallet;
         } catch (error) {
             console.error('Error in debitBalance service:', error);
+            throw error;
+        }
+    },
+
+    getBalance: async (userId, role) => {
+        try {
+            console.log('Service - getBalance:', { userId }); // Debugging log
+
+            const wallet = await Wallet.findOne({
+                where: { user_id: userId, user_type: role },
+            });
+
+            if (wallet) {
+                return {
+                    balance: parseFloat(wallet.balance), // USDT balance
+                    inr_balance: parseFloat(wallet.inr_balance), // INR balance
+                    coin_type: wallet.coin_type,
+                    username: wallet.username,
+                };
+            } else {
+                throw new Error("Wallet not found");
+            }
+        } catch (error) {
+            console.error('Error in getBalance service:', error);
             throw error;
         }
     },
@@ -161,7 +200,7 @@ const WalletService = {
             if (count > 1000) {
                 const excess = count - 1000;
                 const oldestTransactions = await Transaction.findAll({
-                    where: { wallet_id: walletId },
+                    where: { wallet_id: wallet_id },
                     order: [['date', 'ASC']],
                     limit: excess,
                     transaction,
@@ -175,29 +214,6 @@ const WalletService = {
             }
         } catch (error) {
             console.error('Error in cleanupTransactions:', error);
-            throw error;
-        }
-    },
-
-    getBalance: async (userId, role) => {
-        try {
-            console.log('Service - getBalance:', { userId }); // Debugging log
-
-            const wallet = await Wallet.findOne({
-                where: { user_id: userId, user_type: role },
-            });
-
-            if (wallet) {
-                return {
-                    balance: parseFloat(wallet.balance),
-                    coin_type: wallet.coin_type,
-                    username: wallet.username,
-                };
-            } else {
-                throw new Error("Wallet not found");
-            }
-        } catch (error) {
-            console.error('Error in getBalance service:', error);
             throw error;
         }
     },

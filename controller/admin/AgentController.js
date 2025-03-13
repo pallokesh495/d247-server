@@ -37,10 +37,10 @@ const AgentController = {
             // Step 3: Debit the logged-in user's balance and credit the initial balance to the agent
             if (initialBalance) {
                 // Debit the logged-in user's balance
-                await WalletService.debitBalance(loggedInUserId, initialBalance, 'default', loggedInUserRole, transaction, loggedInUsername);
+                await WalletService.debitBalance(loggedInUserId, initialBalance, 'USDT', loggedInUserRole, transaction, loggedInUsername);
 
                 // Credit the initial balance to the agent
-                await WalletService.creditBalance(agent.agent_id, initialBalance, 'default', role, transaction, loggedInUsername);
+                await WalletService.creditBalance(agent.agent_id, initialBalance, 'USDT', role, transaction, loggedInUsername);
             }
 
             await transaction.commit(); // Commit the transaction

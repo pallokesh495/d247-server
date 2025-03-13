@@ -18,13 +18,18 @@ const Wallet = sequelize.define('Wallet', {
     username: {
         type: DataTypes.STRING,
         allowNull: false, // Ensure username is required
+        unique: true, // Ensure username is unique
     },
     coin_type: {
         type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: 'USD',
+        allowNull: true,
+        defaultValue: 'USDT',
     },
     balance: {
+        type: DataTypes.DECIMAL(15, 2),
+        defaultValue: 0.0,
+    },
+    inr_balance: {
         type: DataTypes.DECIMAL(15, 2),
         defaultValue: 0.0,
     },

@@ -15,6 +15,7 @@ import withdrawalRoutes from './routes/admin/withdrawalRoutes.js';
 import affiliateRoutes from './routes/admin/affiliateRoutes.js';
 import depositRoutes from './routes/admin/depositRoutes.js'; // Add deposit routes
 import fileRoutes from './routes/admin/fileRoutes.js'
+import bankRoutes from './routes/admin/bankRoutes.js'
 
 dotenv.config();
 
@@ -49,7 +50,9 @@ app.use('/api/user', withdrawalRoutes);
 app.use('/api/admin', withdrawalRoutes);
 app.use('/api/admin', affiliateRoutes);
 app.use('/api/user', depositRoutes); 
-app.use('/api/admin',fileRoutes)
+app.use('/api/admin',fileRoutes);
+app.use('/api/admin',bankRoutes);
+
 
 
 // Start the server
