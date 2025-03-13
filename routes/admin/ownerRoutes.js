@@ -12,7 +12,7 @@ router.post('/clients', OwnerController.createClient);
 router.post('/login-owner', AuthController.login);
 
 // Update a client/website
-router.put('/clients/:ownerId', authMiddleware, OwnerController.updateClient);
+// router.put('/clients/:ownerId', authMiddleware, OwnerController.updateClient);
 
 // Get all clients/websites
 router.get('/clients', authMiddleware, OwnerController.getAllClients);
@@ -22,5 +22,7 @@ router.get('/clients/:ownerId', authMiddleware, OwnerController.getClient);
 
 // Delete a client/website
 router.delete('/clients/:ownerId', authMiddleware, OwnerController.deleteClient);
+
+router.put('/client/update-password',authMiddleware, OwnerController.updatePassword);
 
 export default router;

@@ -11,7 +11,7 @@ const AuthService = {
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) throw new Error('Invalid credentials');
 
-        console.log(user, 'owner user id')
+        console.log(user, 'agent------> user id')
 
         // Generate a JWT token with user_id and role
         const token = jwt.sign(

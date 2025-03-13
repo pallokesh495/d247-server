@@ -14,6 +14,7 @@ import userWalletRoutes from './routes/user/userWalletRoutes.js';
 import withdrawalRoutes from './routes/admin/withdrawalRoutes.js';
 import affiliateRoutes from './routes/admin/affiliateRoutes.js';
 import depositRoutes from './routes/admin/depositRoutes.js'; // Add deposit routes
+import fileRoutes from './routes/admin/fileRoutes.js'
 
 dotenv.config();
 
@@ -28,7 +29,7 @@ app.use((req, res, next) => {
 });
 app.use(
   cors({
-    origin: ['http://localhost:3001', 'http://localhost:3000'], // Allow only these origins
+    origin: ['http://localhost:3001', 'http://localhost:3000','http://localhost:3004'], // Allow only these origins
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Allowed HTTP methods
     credentials: true, // Allow cookies and credentials
   })
@@ -48,6 +49,7 @@ app.use('/api/user', withdrawalRoutes);
 app.use('/api/admin', withdrawalRoutes);
 app.use('/api/admin', affiliateRoutes);
 app.use('/api/user', depositRoutes); 
+app.use('/api/admin',fileRoutes)
 
 
 // Start the server
