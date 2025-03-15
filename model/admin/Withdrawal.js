@@ -19,25 +19,33 @@ const Withdrawal = sequelize.define('Withdrawal', {
         type: DataTypes.STRING,
         allowNull: false,
     },
-    bank: {
-        type: DataTypes.STRING,
-        allowNull: true, // Optional, as UPI ID can be used instead
+    payment_method: {
+        type: DataTypes.ENUM('BANK', 'UPI'), // Payment method: BANK or UPI
+        allowNull: true, // Optional for USDT withdrawals
     },
     account_holder_name: {
         type: DataTypes.STRING,
-        allowNull: false,
+        allowNull: true, // Optional, as it's only required for BANK withdrawals
     },
     account_number: {
         type: DataTypes.STRING,
-        allowNull: true, // Optional, as UPI ID can be used instead
+        allowNull: true, // Optional, as it's only required for BANK withdrawals
     },
     ifsc_code: {
         type: DataTypes.STRING,
-        allowNull: true, // Optional, as UPI ID can be used instead
+        allowNull: true, // Optional, as it's only required for BANK withdrawals
     },
     upi_id: {
         type: DataTypes.STRING,
-        allowNull: true, // Optional, as bank details can be used instead
+        allowNull: true, // Optional, as it's only required for UPI withdrawals
+    },
+    wallet_address: {
+        type: DataTypes.STRING,
+        allowNull: true, // Optional, as it's only required for USDT withdrawals
+    },
+    chain_name: {
+        type: DataTypes.STRING,
+        allowNull: true, // Optional, as it's only required for USDT withdrawals
     },
     withdraw_amount: {
         type: DataTypes.DECIMAL(15, 2),

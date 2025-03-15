@@ -5,7 +5,18 @@ const WithdrawalController = {
     // User creates a withdrawal request
     createWithdrawal: async (req, res) => {
         try {
-            const { withdraw_amount, withdraw_currency, bank, account_holder_name, account_number, ifsc_code, upi_id } = req.body;
+            const {
+                withdraw_amount,
+                withdraw_currency,
+                payment_method,
+                account_holder_name,
+                account_number,
+                ifsc_code,
+                upi_id,
+                wallet_address,
+                chain_name,
+            } = req.body;
+
             const userId = req.user.user_id; // Get userId from the token
 
             // Fetch user details
@@ -14,15 +25,38 @@ const WithdrawalController = {
                 return res.status(404).json({ error: 'User not found' });
             }
 
+            // Validate input based on withdrawal currency and payment method
+            if (withdraw_currency === 'INR') {
+                if (payment_method === 'BANK') {
+                    if (!account_holder_name || !account_number || !ifsc_code) {
+                        return res.status(400).json({ error: 'Please provide all bank details.' });
+                    }
+                } else if (payment_method === 'UPI') {
+                    if (!upi_id) {
+                        return res.status(400).json({ error: 'Please provide UPI ID.' });
+                    }
+                } else {
+                    return res.status(400).json({ error: 'Invalid payment method for INR withdrawals.' });
+                }
+            } else if (withdraw_currency === 'USDT') {
+                if (!wallet_address || !chain_name) {
+                    return res.status(400).json({ error: 'Please provide wallet address and chain name.' });
+                }
+            } else {
+                return res.status(400).json({ error: 'Invalid withdrawal currency.' });
+            }
+
             // Create a withdrawal request
             const withdrawal = await Withdrawal.create({
                 userid: userId,
                 withdraw_currency,
-                bank,
+                payment_method,
                 account_holder_name,
                 account_number,
                 ifsc_code,
                 upi_id,
+                wallet_address,
+                chain_name,
                 withdraw_amount,
                 status: 'In Queue', // Default status
             });
