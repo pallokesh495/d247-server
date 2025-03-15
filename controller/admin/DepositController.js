@@ -4,15 +4,18 @@ import User from '../../model/user/User.js';
 const DepositController = {
   // Create a deposit
   async createDeposit(req, res) {
+    console.log
     try {
       const {
+        depositAmount,
+        coinType,
+        chain,
+        walletAddress,
         accountHolderName,
         accountNumber,
         ifscCode,
         upiId,
-        depositAmount,
         transactionNumber,
-        currency,
         bank,
         paymentMethod,
       } = req.body;
@@ -26,25 +29,49 @@ const DepositController = {
         return res.status(404).json({ message: 'User not found' });
       }
 
+      // Validate based on coinType
+      if (coinType === 'INR') {
+        // Either bank details (accountHolderName, accountNumber, ifscCode) or UPI ID must be provided
+        const hasBankDetails = accountHolderName && accountNumber && ifscCode;
+        const hasUpiId = upiId;
+
+        if (!hasBankDetails && !hasUpiId) {
+          return res.status(400).json({
+            message: 'For INR, either bank details (accountHolderName, accountNumber, ifscCode) or UPI ID is required.',
+          });
+        }
+      } else if (coinType === 'USDT') {
+        // Both walletAddress and chain are mandatory for USDT
+        if (!walletAddress || !chain) {
+          return res.status(400).json({
+            message: 'For USDT, walletAddress and chain are required.',
+          });
+        }
+      } else {
+        return res.status(400).json({ message: 'Invalid coinType. Allowed values are INR or USDT.' });
+      }
+
       // Get the uploaded file path (if any)
       const paymentScreenshot = req.file ? req.file.path : null;
-
+console.log(paymentMethod,"1111111111111111111")
       // Create the deposit
       const deposit = await Deposit.create({
         user_id: userId, // Use the user_id from the token
+        depositAmount,
+        coinType,
+        chain,
+        walletAddress,
         accountHolderName,
         accountNumber,
         ifscCode,
         upiId,
-        depositAmount,
         transactionNumber,
-        currency,
         bank,
         paymentMethod,
         paymentScreenshot,
         status: 'In Queue', // Default status
       });
-
+    
       res.status(201).json({ message: 'Deposit created successfully', deposit });
     } catch (error) {
       console.error(error);

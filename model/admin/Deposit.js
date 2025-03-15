@@ -38,14 +38,14 @@ const Deposit = sequelize.define('Deposit', {
     currency: {
         type: DataTypes.STRING,
         allowNull: false,
-        defaultValue: 'USD',
+        defaultValue: 'USDT',
     },
     bank: {
         type: DataTypes.STRING,
         allowNull: false,
     },
     paymentMethod: {
-        type: DataTypes.ENUM('automatic','manual'),
+        type: DataTypes.ENUM('CRYPTO','BANK','UPI'),
         allowNull: false,
     },
     paymentScreenshot: {
