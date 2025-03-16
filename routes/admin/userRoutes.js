@@ -11,7 +11,7 @@ router.get('/user-details', authMiddleware, UserController.getUser);
 // Protected route: Create a user
 router.post('/users-create',authMiddleware, UserController.createUser);
 //public
-router.post('/register-user', UserController.createUser);
+router.post('/register-user', UserController.registerUser);
 
 //update pass for users
 router.put('/user-update-password',authMiddleware, UserController.updatePassword);

@@ -5,19 +5,15 @@ import WalletService from '../../services/walletService.js';
 import Bank from '../../model/admin/Bank.js'; // Import the Bank model to fetch exchange rate
 
 const UserController = {
-    // Create a new user
+    // Create a new user with optional initial balance (for admin)
     createUser: async (req, res) => {
         const transaction = await sequelize.transaction(); // Start a transaction
         const userData = req.body;
-        const { initialBalance, coin_type="USDT", ...userDetails } = userData;
-        console.log(coin_type,"@@@@@@@@@@@@@cointype")
-        console.log(userData,"@@@@@@@@@@@@@userData")
+        const { initialBalance, coin_type = "USDT", ...userDetails } = userData;
+        console.log(coin_type, "@@@@@@@@@@@@@cointype");
+        console.log(userData, "@@@@@@@@@@@@@userData");
 
         try {
-            
-            
-
-
             const loggedInUserId = req.user.user_id; // Logged-in user's ID
             const loggedInUsername = req.user.username; // Logged-in user's username
             const loggedInUserRole = req.user.role; // Logged-in user's role
@@ -75,6 +71,28 @@ const UserController = {
         } catch (error) {
             await transaction.rollback(); // Rollback the transaction on error
             console.error('Error in createUser:', error);
+            res.status(500).json({ success: false, error: error.message });
+        }
+    },
+
+    // Register a new user (without initial balance)
+    registerUser: async (req, res) => {
+        const transaction = await sequelize.transaction(); // Start a transaction
+        try {
+            const userData = req.body;
+            const { ...userDetails } = userData;
+
+            // Create a new user
+            const user = await User.create(userDetails, { transaction });
+
+            // Create a wallet for the user
+            await WalletService.createWallet(user.user_id, 'User', transaction, user.username);
+
+            await transaction.commit(); // Commit the transaction
+            res.status(201).json({ success: true, data: user });
+        } catch (error) {
+            await transaction.rollback(); // Rollback the transaction on error
+            console.error('Error in registerUser:', error);
             res.status(500).json({ success: false, error: error.message });
         }
     },
