@@ -11,13 +11,13 @@ router.post('/agent/register',authMiddleware, AgentController.registerAgent);
 router.get('/agent-list', authMiddleware, AgentController.getAllAgents);
 
 // Get a specific agent by ID (protected route)
-router.get('/agent/:agentId', authMiddleware, AgentController.getAgentById);
+router.get('/agent-details', authMiddleware, AgentController.getAgentById);
 
 // Update an agent (protected route)
 // router.put('/agent/:agentId', authMiddleware, AgentController.updateAgent);
 
 // Delete an agent (protected route)
-router.delete('/agent/:agentId', authMiddleware, AgentController.deleteAgent);
+router.delete('/agent-delete', authMiddleware, AgentController.deleteAgent);
 
 
 //req. current and new passwrd

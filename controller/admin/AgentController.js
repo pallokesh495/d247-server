@@ -63,10 +63,11 @@ const AgentController = {
         }
     },
 
-    // Get a specific agent by ID
-    getAgentById: async (req, res) => {
+    
+     // Get a specific agent by ID
+     getAgentById: async (req, res) => {
         try {
-            const { agentId } = req.params;
+            const agentId = req.user.user_id; // Fetch agentId from the authenticated user's token
 
             const agent = await Agent.findOne({ where: { agent_id: agentId } });
             if (!agent) {
@@ -103,13 +104,13 @@ const AgentController = {
     // Delete an agent
     deleteAgent: async (req, res) => {
         try {
-            const { agentId } = req.params;
-
+            const agentId = req.user.user_id; // Fetch agentId from the authenticated user's token
+    
             const agent = await Agent.findOne({ where: { agent_id: agentId } });
             if (!agent) {
                 return res.status(404).json({ success: false, error: 'Agent not found' });
             }
-
+    
             await agent.destroy();
             res.status(200).json({ success: true, message: 'Agent deleted successfully' });
         } catch (error) {

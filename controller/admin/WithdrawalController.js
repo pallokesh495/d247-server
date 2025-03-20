@@ -74,7 +74,7 @@ const WithdrawalController = {
             const { withdrawalId, status } = req.body;
 
             // Check if the user is an admin
-            if (req.user.role !== 'Agent' && req.user.role !== 'Owner') {
+            if (req.user.role !== 'Agent' && req.user.role !== 'Owner'&& req.user.role !== 'Master') {
                 return res.status(403).json({ error: 'Access denied. Only admins can update withdrawal status.' });
             }
 
@@ -99,7 +99,7 @@ const WithdrawalController = {
     getAllWithdrawals: async (req, res) => {
         try {
             // Check if the user is an admin
-            if (req.user.role !== 'Agent' && req.user.role !== 'Owner') {
+            if (req.user.role !== 'Agent' && req.user.role !== 'Owner'&& req.user.role !== 'Master') {
                 return res.status(403).json({ error: 'Access denied. Only admins can view all withdrawals.' });
             }
 

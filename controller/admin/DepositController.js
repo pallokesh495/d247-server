@@ -85,7 +85,7 @@ console.log(paymentMethod,"1111111111111111111")
       const { deposit_id, status } = req.body;
 
       // Check if the user is an admin
-      if (req.user.role !== 'Agent' && req.user.role !== 'Owner') {
+      if (req.user.role !== 'Agent' && req.user.role !== 'Owner'&& req.user.role !== 'Master') {
         return res.status(403).json({ message: 'Access denied. Only admins can update deposit status.' });
       }
 
@@ -110,7 +110,7 @@ console.log(paymentMethod,"1111111111111111111")
   async getAllDeposits(req, res) {
     try {
       // Check if the user is an admin
-      if (req.user.role !== 'Agent' && req.user.role !== 'Owner') {
+      if (req.user.role !== 'Agent' && req.user.role !== 'Owner' && req.user.role !== 'Master') {
         return res.status(403).json({ message: 'Access denied. Only admins can view all deposits.' });
       }
 

@@ -7,6 +7,8 @@ import authMiddleware from '../../middleware/authMiddleware.js'; // Import the m
 // user transactions
 router.get('/transaction-user', authMiddleware, TransactionController.getTransactionsByWalletId);
 
+router.get('/transactions/date-range',authMiddleware,TransactionController.getTransactionsByDateRange)
+
 
 router.post('/transaction-list', TransactionController.getAllTransactions);
 
