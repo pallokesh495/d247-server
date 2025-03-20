@@ -17,7 +17,7 @@ router.get('/agent-details', authMiddleware, AgentController.getAgentById);
 // router.put('/agent/:agentId', authMiddleware, AgentController.updateAgent);
 
 // Delete an agent (protected route)
-router.delete('/agent-delete', authMiddleware, AgentController.deleteAgent);
+router.delete('/agent/:agentId', authMiddleware, AgentController.deleteAgent);
 
 
 //req. current and new passwrd
