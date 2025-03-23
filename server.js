@@ -53,6 +53,14 @@ app.use('/api/user', depositRoutes);
 app.use('/api/admin',fileRoutes);
 app.use('/api/admin',bankRoutes);
 
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log('Database connection established successfully.');
+  })
+  .catch((err) => {
+    console.error('Unable to connect to the database:', err);
+  });
 
 
 // Start the server
@@ -60,4 +68,5 @@ sequelize.sync().then(() => {
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
   });
+
 });
